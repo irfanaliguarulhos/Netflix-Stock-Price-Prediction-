@@ -1,0 +1,2 @@
+# Netflix-Stock-Price-Prediction-
+One of the most prominent OTT streaming platforms is Netflix. Netflix owns its creations, known as Netflix Originals, and has a large library of television shows and films. Because of its popularity, those who are involved in stock market investing keep a watch on firms like Netflix. If you're one of those people who wants to understand how to use machine learning to anticipate Netflix stock prices, this post is for you. In this post, I'll walk you through the process of predicting Netflix stock price using Machine Learning and Python.
