@@ -82,6 +82,32 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def fit_xgboost_model(model: xgb.XGBRegressor,
+                      X_train: np.ndarray,
+                      y_train: np.ndarray,
+                      eval_set: Optional[List[tuple]] = None,
+                      verbose: bool = False,
+                      early_stopping_rounds: Optional[int] = 20) -> xgb.XGBRegressor:
+    """Fit XGBoost with early-stopping when supported by the installed version."""
+    fit_kwargs = {'verbose': verbose}
+    if eval_set is not None:
+        fit_kwargs['eval_set'] = eval_set
+
+    try:
+        if early_stopping_rounds is not None:
+            model.fit(X_train, y_train, early_stopping_rounds=early_stopping_rounds, **fit_kwargs)
+        else:
+            model.fit(X_train, y_train, **fit_kwargs)
+    except TypeError as exc:
+        if 'early_stopping_rounds' not in str(exc):
+            raise
+
+        logger.warning('XGBoost version does not support early_stopping_rounds; training without early stopping.')
+        model.fit(X_train, y_train, **fit_kwargs)
+
+    return model
+
+
 class DataPreprocessor:
     """
     Advanced data preprocessing with feature engineering for stock prediction.
@@ -418,11 +444,13 @@ class ModelEnsemble:
         X_test_flat = data['X_test'].reshape(data['X_test'].shape[0], -1)
         
         xgb_model = self.build_xgboost_model()
-        xgb_model.fit(
-            X_train_flat, data['y_train'],
+        fit_xgboost_model(
+            xgb_model,
+            X_train_flat,
+            data['y_train'],
             eval_set=[(X_test_flat, data['y_test'])],
-            early_stopping_rounds=20,
-            verbose=True
+            verbose=True,
+            early_stopping_rounds=20
         )
         self.models['xgboost'] = xgb_model
         results['xgboost'] = self.evaluate_model_xgb(xgb_model, X_test_flat, data['y_test'])
@@ -579,11 +607,13 @@ class HyperparameterOptimizer:
             }
             
             model = xgb.XGBRegressor(**params)
-            model.fit(
-                X_train_flat, self.data['y_train'],
+            fit_xgboost_model(
+                model,
+                X_train_flat,
+                self.data['y_train'],
                 eval_set=[(X_test_flat, self.data['y_test'])],
-                early_stopping_rounds=20,
-                verbose=False
+                verbose=False,
+                early_stopping_rounds=20
             )
             
             y_pred = model.predict(X_test_flat)
@@ -868,8 +898,8 @@ class Backtester:
         tscv = TimeSeriesSplit(n_splits=n_splits)
         results = []
         
-        X = data['X_train_raw']
-        y = data['y_train_raw']
+        X = data['X_train']
+        y = data['y_train']
         
         for fold, (train_idx, test_idx) in enumerate(tscv.split(X)):
             logger.info(f"Fold {fold+1}/{n_splits}")

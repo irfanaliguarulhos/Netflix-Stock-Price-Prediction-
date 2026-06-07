@@ -35,7 +35,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'Get Started': 'https://github.com',
+        'Get help': 'https://github.com',
         'About': "Netflix Stock Prediction System v2.0"
     }
 )
@@ -263,6 +263,7 @@ def load_data_and_models():
     Attempts to load pre-saved artifacts from disk.
     Returns None if files are missing (demo mode).
     """
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     files = {
         'model_lstm': 'models/lstm_model_best.pkl',
         'model_gru': 'models/gru_model_best.pkl',
@@ -277,7 +278,7 @@ def load_data_and_models():
     all_exist = True
     
     for key, path in files.items():
-        full_path = os.path.join('/workspace', path)
+        full_path = os.path.join(base_dir, path)
         if os.path.exists(full_path):
             try:
                 if path.endswith('.csv'):
@@ -454,7 +455,7 @@ with st.sidebar:
     )
     
     # Refresh Button
-    if st.button("🔄 Refresh Data", use_container_width=True):
+    if st.button("🔄 Refresh Data", width="stretch"):
         st.cache_data.clear()
         st.rerun()
     
@@ -685,7 +686,7 @@ if navigation == "📊 360° Overview":
             yaxis2=dict(title="Volume", tickformat=",")
         )
         
-        st.plotly_chart(fig_main, use_container_width=True)
+        st.plotly_chart(fig_main, width="stretch")
     
     with tab2:
         st.subheader("Volume Analysis & Liquidity")
@@ -726,7 +727,7 @@ if navigation == "📊 360° Overview":
             yaxis=dict(title="Volume", tickformat=",")
         )
         
-        st.plotly_chart(fig_vol, use_container_width=True)
+        st.plotly_chart(fig_vol, width="stretch")
         
         # Volume stats
         vol_col1, vol_col2, vol_col3 = st.columns(3)
@@ -787,7 +788,7 @@ if navigation == "📊 360° Overview":
                     font=dict(color='#ffffff')
                 )
                 
-                st.plotly_chart(fig_hist, use_container_width=True)
+                st.plotly_chart(fig_hist, width="stretch")
             
             with col_err2:
                 # Residuals over time
@@ -823,7 +824,7 @@ if navigation == "📊 360° Overview":
                     font=dict(color='#ffffff')
                 )
                 
-                st.plotly_chart(fig_resid, use_container_width=True)
+                st.plotly_chart(fig_resid, width="stretch")
             
             # Error statistics
             err_col1, err_col2, err_col3, err_col4 = st.columns(4)
@@ -932,7 +933,7 @@ elif navigation == "🔮 30-Day Forecast":
         yaxis=dict(tickprefix="$", gridcolor='#333')
     )
     
-    st.plotly_chart(fig_forecast, use_container_width=True)
+    st.plotly_chart(fig_forecast, width="stretch")
     
     # KEY INSIGHTS
     st.markdown("### 🎯 Key Forecast Insights")
@@ -977,9 +978,8 @@ elif navigation == "🔮 30-Day Forecast":
         
         st.dataframe(
             forecast_display[['Day', 'Date', 'Predicted_Close', 'Lower_CI', 'Upper_CI', 'Volatility']]
-            .style.format(format_dict)
-            .background_gradient(subset=['Volatility'], cmap='RdYlGn_r', vmin=0, vmax=0.1),
-            use_container_width=True,
+            .style.format(format_dict),
+            width="stretch",
             height=400
         )
     
@@ -990,7 +990,7 @@ elif navigation == "🔮 30-Day Forecast":
         data=csv_data,
         file_name=f"nflx_forecast_{datetime.now().strftime('%Y%m%d')}.csv",
         mime="text/csv",
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -1075,7 +1075,7 @@ elif navigation == "🧠 Model Performance":
     
     fig_comp.update_xaxes(tickangle=-45)
     
-    st.plotly_chart(fig_comp, use_container_width=True)
+    st.plotly_chart(fig_comp, width="stretch")
     
     # WALK-FORWARD VALIDATION EXPLANATION
     st.markdown("---")
@@ -1128,7 +1128,7 @@ elif navigation == "🧠 Model Performance":
             showlegend=False
         )
         
-        st.plotly_chart(wf_fig, use_container_width=True)
+        st.plotly_chart(wf_fig, width="stretch")
     
     # TRADING STRATEGY SIMULATION
     st.markdown("---")
@@ -1181,7 +1181,7 @@ elif navigation == "🧠 Model Performance":
         legend=dict(orientation="h", y=1.02, x=0)
     )
     
-    st.plotly_chart(fig_strategy, use_container_width=True)
+    st.plotly_chart(fig_strategy, width="stretch")
 
 
 # ============================================================================
@@ -1286,7 +1286,7 @@ elif navigation == "⚙️ Technical Analysis":
             font=dict(color='#ffffff')
         )
         
-        st.plotly_chart(fig_ma, use_container_width=True)
+        st.plotly_chart(fig_ma, width="stretch")
     
     elif primary_indicator == "RSI":
         st.subheader("📊 Relative Strength Index (Momentum)")
@@ -1334,7 +1334,7 @@ elif navigation == "⚙️ Technical Analysis":
             font=dict(color='#ffffff')
         )
         
-        st.plotly_chart(fig_rsi, use_container_width=True)
+        st.plotly_chart(fig_rsi, width="stretch")
     
     elif primary_indicator == "MACD":
         st.subheader("📉 MACD (Trend Momentum)")
@@ -1402,7 +1402,7 @@ elif navigation == "⚙️ Technical Analysis":
             font=dict(color='#ffffff')
         )
         
-        st.plotly_chart(fig_macd, use_container_width=True)
+        st.plotly_chart(fig_macd, width="stretch")
     
     elif primary_indicator == "Bollinger Bands":
         st.subheader("📊 Bollinger Bands (Volatility)")
@@ -1459,7 +1459,7 @@ elif navigation == "⚙️ Technical Analysis":
             font=dict(color='#ffffff')
         )
         
-        st.plotly_chart(fig_bb, use_container_width=True)
+        st.plotly_chart(fig_bb, width="stretch")
         
         # BB Width analysis
         st.markdown("#### Band Width Analysis")
@@ -1506,7 +1506,7 @@ elif navigation == "⚙️ Technical Analysis":
             font=dict(color='#ffffff')
         )
         
-        st.plotly_chart(fig_atr, use_container_width=True)
+        st.plotly_chart(fig_atr, width="stretch")
     
     # FEATURE IMPORTANCE
     st.markdown("---")
@@ -1551,7 +1551,7 @@ elif navigation == "⚙️ Technical Analysis":
         font=dict(color='#ffffff')
     )
     
-    st.plotly_chart(fig_feat, use_container_width=True)
+    st.plotly_chart(fig_feat, width="stretch")
 
 
 # ============================================================================
@@ -1626,7 +1626,7 @@ elif navigation == "📋 Data Explorer":
         
         st.dataframe(
             df_table,
-            use_container_width=True,
+            width="stretch",
             height=500
         )
         
@@ -1637,7 +1637,7 @@ elif navigation == "📋 Data Explorer":
             data=csv_export,
             file_name=f"nflx_data_{min_date}_to_{max_date}.csv",
             mime="text/csv",
-            use_container_width=True
+            width="stretch"
         )
     else:
         st.warning("Please select at least one column to display.")
